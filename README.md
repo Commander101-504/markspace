@@ -1,4 +1,4 @@
 # Markspace
 ---
 A simple markdown parser that runs in your browser
-Use markspace at [Netlify](https://markspace.netlify.app/)
+Use markspace in [Netlify](https://markspace.netlify.app/)
