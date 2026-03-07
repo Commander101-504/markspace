@@ -3,23 +3,28 @@
     <head>
         <title>Markspace</title>
         <style>
+            :root {
+                --primary-color: #00001e;
+                --secondary-color: #253f52;
+                --tertiary-color: #285F7B;
+                --tertiary-hover: #447F9C;
+                --tertiary-selected: #5E8DA6;
+                --accent: #fffdd0;
+            }
             body {
-                background-color: #00001e;
+                background-color: var(--primary-color);
             }
             * {
-                scrollbar-color: #fffdd0 transparent;
+                scrollbar-color: var(--accent) transparent;
                 font-family: sans-serif;
                 font-size: 16px;
             }
-            ::-webkit-scrollbar-thumb {
-              background: #0f0; 
-            }
             .panels {
-                background-color: #253f52;
+                background-color: var(--secondary-color);
                 border-radius: 15px;
             }
             .textBoxes {
-                color: #fffdd0;
+                color: var(--accent);
                 outline: none;
             }
             #app {
@@ -34,6 +39,44 @@
             }
             #sidePanel {
                 flex: 1;
+                display: flex;
+                flex-flow: column nowrap;
+                justify-content: flex-start;
+                align-items: center;
+                gap: 10px;
+                padding-top: 10px;
+            }
+            .noteItems {
+                width: 90%;
+                height: 10vh;
+                background-color: var(--tertiary-color);
+                color: var(--accent);
+                border-radius: 10px;
+                display: flex;
+                justify-content: flex-start;
+                align-items: center;
+                padding-left: 10px;
+                font-size: 2rem;
+                font-family: sans-serif;
+                font-weight: bold;
+            }
+            .noteItems:hover, .noteItemsSelected:hover {
+                background-color: var(--tertiary-hover);
+                cursor: pointer;
+            }
+            .noteItemsSelected {
+                width: 90%;
+                height: 10vh;
+                background-color: var(--tertiary-selected);
+                color: var(--accent);
+                border-radius: 10px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding-left: 10px;
+                font-size: 2rem;
+                font-family: sans-serif;
+                font-weight: bold;
             }
             #editorPanel {
                 flex: 2;
@@ -70,7 +113,7 @@
                 font-size: 0.9em;
             }
             #preview a {
-                color: #fffdd0;
+                color: var(--accent);
                 text-decoration: underline;
             }
             #preview ul {
@@ -93,7 +136,7 @@
                 height: 10vh;
             }
             #name {
-                color: #fffdd0;
+                color: var(--accent);
                 flex: 1;
                 font-size: 6vh;
                 display: flex;
@@ -103,13 +146,25 @@
             }
             #editorButtons, #previewButtons {
                 flex: 2;
+                display: flex;
+                justify-content: flex-start;
+                align-items: center;
+                gap: 10px;
+                padding: 10px;
+            }
+            .topBarButtons {
+                height: 90%;
+                aspect-ratio: 1 / 1;
             }
         </style>
     </head>
     <body>
         <div id="topBar">
+            <button onclick="localStorage.setItem('notes', '');">dasf</button>
             <h1 id="name">Markspace</h1>
-            <div id="editorButtons"></div>
+            <div id="editorButtons">
+                <button class="topBarButtons" onclick="addNote();">+</button>
+            </div>
             <div id="previewButtons"></div>
         </div>
         <div id="app">
@@ -123,30 +178,80 @@
         </div>
         <script>
             let notes = [];
-        let activeNoteId = 0;
-        
-        function parseMarkdown(str) {
-            str = str.replace(/^# (.+)$/gm,   '<h1>$1</h1>');
-            str = str.replace(/^## (.+)$/gm,  '<h2>$1</h2>');
-            str = str.replace(/^### (.+)$/gm, '<h3>$1</h3>');
-            str = str.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-            str = str.replace(/\*(.+?)\*/g,     '<em>$1</em>');
-            str = str.replace(/`(.+?)`/g,       '<code>$1</code>');
-            str = str.replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2">$1</a>');
-            str = str.replace(/^- (.+)$/gm, '<li>$1</li>');
-            str = str.replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>');
-            str = str.replace(/^---$/gm, '<hr>');
-            str = str.replace(/\n\n/g, '<br><br>');
-            str = str.replace(/\n/g, ' ');
-            return str;
-        }
-        
-        const editor = document.getElementById("editor");
-        const preview = document.getElementById("preview");
-        
-        editor.addEventListener("input", () => {
-            preview.innerHTML = parseMarkdown(editor.value);
-        });
+            let activeNoteId = 0;
+            
+            function parseMarkdown(str) {
+                str = str.replace(/^# (.+)$/gm,   '<h1>$1</h1>');
+                str = str.replace(/^## (.+)$/gm,  '<h2>$1</h2>');
+                str = str.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+                str = str.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+                str = str.replace(/\*(.+?)\*/g,     '<em>$1</em>');
+                str = str.replace(/`(.+?)`/g,       '<code>$1</code>');
+                str = str.replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2">$1</a>');
+                str = str.replace(/^- (.+)$/gm, '<li>$1</li>');
+                str = str.replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>');
+                str = str.replace(/^---$/gm, '<hr>');
+                str = str.replace(/\n\n/g, '<br><br>');
+                str = str.replace(/\n/g, ' ');
+                return str;
+            }
+            
+            const editor = document.getElementById("editor");
+            const preview = document.getElementById("preview");
+            
+            editor.addEventListener("input", () => {
+                notes.find(n => n.id === activeNoteId).content = editor.value;
+                preview.innerHTML = parseMarkdown(editor.value);
+                saveNotes();
+            });
+
+            function saveNotes() {
+                localStorage.setItem("notes", JSON.stringify(notes));
+            }
+            
+            function loadNotes() {
+                const saved = localStorage.getItem("notes");
+                if (saved) {
+                    notes = JSON.parse(saved);
+                } else {
+                    notes = [{ id: 0, title: "Untitled", content: "" }];
+                }
+                activeNoteId = notes[0].id;
+                editor.value = notes[0].content;
+                preview.innerHTML = parseMarkdown(notes[0].content);
+                renderSidebar();
+            }
+            loadNotes();
+
+            function renderSidebar() {
+                document.querySelector("#sidePanel").innerHTML = "";
+                notes.forEach(function(note, index) {
+                    let newNote = document.createElement("div");
+                    document.querySelector("#sidePanel").appendChild(newNote);
+                    newNote.id = "note" + index;
+                    if (note.id == activeNoteId) {
+                        newNote.className = "noteItemsSelected";
+                    } else {
+                        newNote.className = "noteItems";
+                    }
+                    newNote.innerText = note.title;
+                    newNote.onclick = () => switchNote(note.id);
+                })
+            }
+
+            function switchNote(id) {
+                saveNotes();
+                activeNoteId = id;
+                editor.value = notes.find(n => n.id === activeNoteId).content;
+                preview.innerHTML = parseMarkdown(editor.value);
+                renderSidebar();
+            }
+
+            function addNote() {
+                let noteCount = notes.length;
+                notes.push({id: (noteCount + 1), title: "Untitled", content: ""});
+                renderSidebar();
+            }
         </script>
     </body>
 </html>
