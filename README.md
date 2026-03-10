@@ -9,5 +9,5 @@ You can use markspace in [Netlify](https://markspace.netlify.app/)
 <kbd>Ctrl</kbd> + <kbd>H</kbd> Heading <br>
 <kbd>Ctrl</kbd> + <kbd>`</kbd> Code <br>
 <kbd>Ctrl</kbd> + <kbd>K</kbd> Link <br>
-<kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>B</kbd> Bullet List <br>
+<kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>8</kbd> Bullet List <br>
 <kbd>Ctrl</kbd> + <kbd>D</kbd> Divider <br>
